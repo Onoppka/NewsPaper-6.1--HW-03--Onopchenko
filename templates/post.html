@@ -1,0 +1,17 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+
+{% block title %}
+    Новость/Статья
+{% endblock title %}
+
+{% block content %}
+    <h1>{{ news.title|censor }}</h1>
+    <h5><i>{{ news.created_at|date:'d M Y' }}</i></h5>
+
+    {% for content in news.content|split %}
+        <p>{{ content|censor }}</p>
+    {% endfor %}
+
+{% endblock content %}

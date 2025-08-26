@@ -5,13 +5,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 
-from .models import Post, Author
+from .models import Post, Author, Category
 from django.http import Http404
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from .filters import PostFilter
 from .forms import PostForm
-from .forms import CommonSignupForm
+
 
 
 
@@ -130,3 +130,39 @@ def upgrade_me(request):
         author_group.user_set.add(user)
         Author.objects.create(user_id=request.user.pk)
     return redirect('/news/profile/')
+
+class CategoryListView(PostsList):
+    model = Post
+    template_name = 'news/category_list.html'
+    context_object_name = 'category_news_list'
+
+    def get_queryset(self):
+        self.categories = get_object_or_404(Category, id=self.kwargs['pk'])
+        queryset = Post.objects.filter(category=self.categories).order_by('-datetime_post')
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_not_subscriber'] = self.request.user not in self.categories.subscribers.all()
+        context['category'] = self.categories
+        return context
+
+
+@login_required
+def subscribe(request, pk):
+    user = request.user
+    categories = Category.objects.get(id=pk)
+    categories.subscribers.add(user)
+
+    message = 'Вы успешно подписались на рассылку новых публикаций в категории: '
+    return render(request, 'account/subscribe.html', {'category': categories, 'message': message})
+
+
+@login_required
+def unsubscribe(request, pk):
+    user = request.user
+    categories = Category.objects.get(id=pk)
+    categories.subscribers.remove(user)
+
+    message = 'Вы успешно отписаны от рассылки по категории: '
+    return render(request, 'account/unsubscribe.html', {'category': categories, 'message': message})

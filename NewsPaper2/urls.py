@@ -23,7 +23,6 @@ urlpatterns = [
     path('home/', TemplateView.as_view(template_name='flatpages/home.html'), name='home'),
     path('admin/', admin.site.urls),
     path('pages/', include('django.contrib.flatpages.urls')),
-    path('news/', include('news.urls'), name='news'),
     path('articles/', include('news.urls'), name='articles'),
     path('news/', include('news.urls'), name='news'),
     path('accounts/', include('allauth.urls')),

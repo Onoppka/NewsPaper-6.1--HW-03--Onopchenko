@@ -3,6 +3,7 @@ from .views import (
     PostsList, PostDetail, PostsSearchList, PostCreateView, PostUpdateView, PostDeleteView,
     ProfileView, upgrade_me, CategoryListView, subscribe, unsubscribe,
 )
+from django.views.decorators.cache import cache_page
 
 urlpatterns = [
     path('', PostsList.as_view(), name='post_list'),
@@ -16,4 +17,6 @@ urlpatterns = [
     path('categories/<int:pk>/', CategoryListView.as_view(), name='category_list'),
     path('categories/<int:pk>/subscribe/', subscribe, name='subscribe'),
     path('categories/<int:pk>/unsubscribe/', unsubscribe, name='unsubscribe'),
+    # path('', cache_page(60)(PostsList.as_view()), name='post_list'),
+    # path('<int:id>/', cache_page(60 * 5)(PostDetail.as_view()), name='post_detail'),
 ]

@@ -12,6 +12,8 @@ from django.urls import reverse_lazy
 from .filters import PostFilter
 from .forms import PostForm
 
+from django.core.cache import cache
+
 
 
 
@@ -40,6 +42,15 @@ class PostDetail(DetailView):
             return render(request, 'no_post.html', status=404)
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
+
+    def get_object(self, *args, **kwargs):
+        obj = cache.get(f'news-{self.kwargs["id"]}', None)
+
+        if not obj:
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'news-{self.kwargs["id"]}', obj)
+
+        return obj
 
 class PostsSearchList(ListView):
     model = Post

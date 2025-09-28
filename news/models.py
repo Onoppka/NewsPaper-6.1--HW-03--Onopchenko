@@ -1,8 +1,10 @@
 from django.db import models
+from django.contrib import admin
 from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
 from django.urls import reverse
+from django.core.cache import cache
 
 news = "NE"
 articles = "AR"
@@ -88,6 +90,20 @@ class Comment(models.Model):
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     rating = models.IntegerField(default=0)
+
+    @property
+    @admin.display(
+        description='Публикация'
+    )
+    def post_preview(self):
+        return f"{self.post.title[:40]}..."
+
+    @property
+    @admin.display(
+        description='Комментарий'
+    )
+    def text_preview(self):
+        return f"{self.text[:40]}..."
 
     def like(self):
         self.rating += 1
